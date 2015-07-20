@@ -7,29 +7,8 @@ struct node
     struct node* right;
 };
 
-struct node n[8];
+struct node n[50];
 
-/* int h; */
-
-/* void get_height(struct node *root, int cur) */
-/* { */
-/* 	if (h < cur) */
-/* 		h = cur; */
-
-/* 	if (root->left) { */
-/* 		get_height(root->left, cur+1); */
-/* 	} */
-/* 	if (root->right) { */
-/* 		get_height(root->right, cur+1); */
-/* 	} */
-/* } */
-
-/* int height(struct node *root) */
-/* { */
-/* 	h = 1; */
-/* 	get_height(root, 1); */
-/* 	return h; */
-/* } */
 
 int height(struct node *root)
 {
@@ -77,7 +56,6 @@ void top_view(struct node *root)
 
 	/* n[7].left = &n[8]; */
 
-	/* /\* printf("%d\n", height(&n[3])); *\/ */
 	/* top_view(&n[3]); */
 	struct node *old_root;
 	while (root->left != NULL) {
