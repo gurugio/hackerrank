@@ -71,6 +71,11 @@ void top_view(struct node *root)
 	}
 }
 
+void LevelOrder(struct node *root)
+{
+
+}
+
 int main(void)
 {
 	int i;
@@ -87,13 +92,7 @@ int main(void)
 	n[5].right = &n[4];
 
 	n[2].left = &n[6];
-	n[2].right = &n[7];
 
-	n[1].right = &n[9];
-
-	n[7].left = &n[8];
-
-	/* printf("%d\n", height(&n[3])); */
-	top_view(&n[3]);
+	LevelOrder(&n[3]);
 }
 
