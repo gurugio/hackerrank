@@ -71,12 +71,30 @@ void top_view(struct node *root)
 	}
 }
 
+
 void LevelOrder(struct node *root)
 {
+	static struct node *visit_nodes[50];
+	static int rear = 0, tail = 0;
+	int i;
 
+	visit_nodes[tail++] = root;
+
+	while (rear != tail) {
+		for (i = rear; i < tail; i++) {
+			printf("%d ", visit_nodes[i]->data);
+		}
+
+		for (i = tail; rear < i; rear++) {
+			if (visit_nodes[rear]->left)
+				visit_nodes[tail++] = visit_nodes[rear]->left;
+			if (visit_nodes[rear]->right)
+				visit_nodes[tail++] = visit_nodes[rear]->right;
+		}
+	}	
 }
 
-int main(void)
+int call_LevelOrder(void)
 {
 	int i;
 
@@ -96,3 +114,8 @@ int main(void)
 	LevelOrder(&n[3]);
 }
 
+
+int main(void)
+{
+
+}
