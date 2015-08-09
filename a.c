@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 struct node
 {
@@ -114,8 +115,80 @@ int call_LevelOrder(void)
 	LevelOrder(&n[3]);
 }
 
+struct node *insert(struct node *root, int value)
+{
+	struct node *new_node = (struct node *)malloc(sizeof(struct node));
+	struct node *child = NULL;
+
+	new_node->data = value;
+	new_node->left = new_node->right = NULL;
+
+	if (!root) {
+		root = new_node;
+		return root;
+	}
+
+	child = root;
+	while (1) {
+		if (child->data > value) {
+			if (!child->left) {
+				child->left = new_node;
+				break;
+			} else
+				child = child->left;
+		} else {
+			if (!child->right) {
+				child->right = new_node;
+				break;
+			} else
+				child = child->right;
+		}
+	}
+	
+	return root;
+}
+
+int call_insert(void)
+{
+	struct node *n = NULL;
+	n = insert(n, 4);
+	n = insert(n, 2);
+	n = insert(n, 7);
+	n = insert(n, 1);
+	n = insert(n, 3);
+	n = insert(n, 6);
+	inorder(n);
+}
+
+void no_root_insert(struct node **root, int value)
+{
+	if (!(*root)) {
+		*root = malloc(sizeof(struct node));
+		(*root)->data = value;
+		(*root)->left = (*root)->right = NULL;
+	} else if ((*root)->data > value) {
+		no_root_insert(&(*root)->left, value);
+	} else {
+		no_root_insert(&(*root)->right, value);
+	}
+}
+
+int call_no_root_insert(void)
+{
+	struct node *n = NULL;
+	no_root_insert(&n, 4);
+	no_root_insert(&n, 2);
+	no_root_insert(&n, 7);
+	no_root_insert(&n, 1);
+	no_root_insert(&n, 3);
+	no_root_insert(&n, 6);
+	inorder(n);
+}
 
 int main(void)
 {
-
+	call_insert();
+	printf("\n\n");
+	call_no_root_insert();
+	return 0;
 }
