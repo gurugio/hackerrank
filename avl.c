@@ -13,19 +13,28 @@ typedef struct node
 
 struct node nodes[10];
 
-void print_tree(node *root)
+void inorder_tree(node *root)
 {
 	if (root == NULL)
 		return;
 
-	print_tree(root->left);
-	printf("%d %d\n", root->val, root->ht);
-	print_tree(root->right);
+	inorder_tree(root->left);
+	printf("%d %d\n", root->val, get_balance(root));
+	inorder_tree(root->right);
+}
+
+void preorder_tree(node *root)
+{
+	if (root == NULL)
+		return;
+	printf("%d %d\n", root->val, get_balance(root));
+	preorder_tree(root->left);
+	preorder_tree(root->right);
 }
 
 int get_balance(node *n)
 {
-	int left = 0, right = 0;
+	int left = -1, right = -1;
 	if (n == NULL)
 		return 0;
 	if (n->left)
@@ -37,9 +46,9 @@ int get_balance(node *n)
 
 int get_height(node *n)
 {
-	int left = 0, right = 0;
+	int left = -1, right = -1;
 	if (n == NULL)
-		return 0;
+		return -1;
 	if (n->left)
 		left = n->left->ht;
 	if (n->right)
@@ -80,7 +89,7 @@ node *insert(node *root, int val)
 		root = malloc(sizeof(node));
 		root->val = val;
 		root->left = root->right = NULL;
-		root->ht = 1;
+		root->ht = 0;
 		return root;
 	}
 
@@ -123,7 +132,7 @@ int main(void)
 	node *root = NULL;
 	int test;
 
-	test = 4;
+	test = 5;
 
 	if (test == 1)
 	{
@@ -136,7 +145,7 @@ int main(void)
 		root = insert(root, 7);
 		root = insert(root, 8);
 		root = insert(root, 9);
-		print_tree(root);
+		inorder_tree(root);
 	} else if (test == 2) {
 		root = insert(root, 9);
 		root = insert(root, 8);
@@ -147,7 +156,7 @@ int main(void)
 		root = insert(root, 3);
 		root = insert(root, 2);
 		root = insert(root, 1);
-		print_tree(root);
+		inorder_tree(root);
 	} else if (test == 3) {
 		root = insert(root, 9);
 		root = insert(root, 1);
@@ -158,7 +167,7 @@ int main(void)
 		root = insert(root, 6);
 		root = insert(root, 4);
 		root = insert(root, 5);
-		print_tree(root);
+		inorder_tree(root);
 	} else if (test == 4) {
 		root = insert(root, 1);
 		root = insert(root, 5);
@@ -169,8 +178,15 @@ int main(void)
 		root = insert(root, 4);
 		root = insert(root, 8);
 		root = insert(root, 9);
-		print_tree(root);
+		inorder_tree(root);
+	} else {
+		root = insert(root, 3);
+		root = insert(root, 2);
+		root = insert(root, 4);
+		root = insert(root, 5);
+		root = insert(root, 6);
+		inorder_tree(root);
+		preorder_tree(root);
 	}
-
 	return 0;
 }
