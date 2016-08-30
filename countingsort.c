@@ -3,46 +3,55 @@
 #include <math.h>
 #include <stdlib.h>
 
+int ar[1000000];
+char str[1000000][10];
+char **sortstr;
 
 int main()
 {
-	int count[100] = {0,};
-	int num;
-	scanf("%d", &num);
-
-	int ar[num];
-	char str[num][10];
 	char **sortstr;
 	int i, j;
-
+	int count[100] = {0,};
+	int next[100] = {0,};
+	int num;
+	
+	scanf("%d", &num);
 	sortstr = calloc(num, sizeof(char *));
-	for (i = 0; i < num; i++)
-		sortstr[i] = NULL;
 	
 	for (i = 0; i < num; i++) {
 		scanf("%d", &ar[i]);
 		scanf("%s", str[i]);
+
+		if (i < (int)num/2) {
+			str[i][0] = '-';
+			str[i][1] = '\0';
+		}
 		count[ar[i]]++;
+		/* printf("%d %s\n", ar[i], str[i]); */
 	}
 
+	next[0] = 0;
 	for (i = 1; i < 100; i++) {
-		count[i] = count[i - 1] + count[i];
+		next[i] = next[i - 1] + count[i - 1];
 	}
-	for (i = 0; i < 100; i++)
-		printf("%d ", count[i]);
-	printf("\n");
+	/* for (i = 0; i < 100; i++) { */
+	/* 	printf("%d ", next[i]); */
+	/* } */
+	/* printf("\n"); */
 
 	for (i = 0; i < num; i++) {
 		int index;
-		for (index = count[ar[i] - 1]; index < count[ar[i]]; index++) {
-			if (sortstr[index] == NULL)
-				break;
-		}
+
+		index = next[ar[i]];
+		next[ar[i]]++;
 		sortstr[index] = str[i];
-		printf("%d %s\n", index, sortstr[index]);
+
+		/* printf("%d %s\n", index, sortstr[index]); */
 	}
 
-
+	for (i = 0; i < num; i++)
+		printf("%s ", sortstr[i]);
+	printf("\n");
 	
 	return 0;
 }
