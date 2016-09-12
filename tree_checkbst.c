@@ -2,62 +2,107 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+
 struct Node {
 	int data;
 	struct Node* left;
 	struct Node* right;
 };
 
-bool checkBST(struct Node *root)
-{
-	if (root->left == NULL && root->right != NULL)
-		return false;
-	if (root->left == NULL && root->right == NULL)
-		return true;
+int data[7] = {1, 2, 2, 4, 5, 6, 7}; // F
+//int data[7] = {1, 2, 3, 4, 5, 6, 7}; // T
+//int data[7] = {1, 2, 4, 3, 5, 6, 7}; // F
 
-	if (root->left != NULL) {
-		if (root->left->data > root->data
-		    || !checkBST(root->left))
+int dataindex;
+int datalimit;
+struct Node Root = {-1, NULL, NULL};
+
+bool check_inorder(struct Node *root, int data, int bigger)
+{
+	if (!root)
+		return true;
+	
+	if (root->left)
+		if (!check_inorder(root->left, data, bigger))
 			return false;
+	
+	if (bigger) {
+		if (root->data <= data) {
+			printf("F: %d > %d\n", root->data, data);
+			return false;
+		} else
+			printf("T: %d > %d\n", root->data, data);
+	} else {
+		if (root->data >= data) {
+			printf("F: %d < %d\n", root->data, data);
+			return false;
+		} else
+			printf("T: %d < %d\n", root->data, data);
 	}
 	
-	if (root->right != NULL) {
-		if (root->right->data < root->data
-		    || !checkBST(root->right))
+	if (root->right)
+		if (!check_inorder(root->right, data, bigger))
 			return false;
-	}
 
 	return true;
 }
 
-	
+bool checkBST(struct Node *root)
+{
+	if (root) {
+		if (check_inorder(root->left, root->data, 0) &&
+		    check_inorder(root->right, root->data, 1) &&
+		    checkBST(root->left) && checkBST(root->right))
+			return true;
+		else
+			return false;
+	} else
+		return true;
+}
+
+void build_inorder(struct Node *root, int level)
+{
+	if (root != NULL) {
+		root->left = root->right = NULL;
+		if (level > 0) {
+			root->left = malloc(sizeof(struct Node));
+			build_inorder(root->left, level - 1);
+		}
+
+		if (dataindex < datalimit)
+			root->data = data[dataindex++];
+		else
+			root->data = -1;
+		
+		if (level > 0) {
+			root->right = malloc(sizeof(struct Node));
+			build_inorder(root->right, level - 1);
+		}
+	}
+}
+
+void print_inorder(struct Node *root)
+{
+	if (root->left)
+		print_inorder(root->left);
+	printf("%d %d %d\n", root->data,
+	       root->left ? root->left->data : -1,
+	       root->right ? root->right->data : -1);
+	if (root->right)
+		print_inorder(root->right);
+}
+
 
 int main(void)
 {
-	struct Node n[8];
+	datalimit = 7;
+	build_inorder(&Root, 2);
+	print_inorder(&Root);
+	
+	printf("%d\n", check_inorder(Root.left, 4, 0));
+	printf("%d\n", check_inorder(Root.right, 4, 1));	
 
-	n[1].data = 1;
-	n[1].left = n[1].right = NULL;
-	n[4].data = 4;
-	n[4].left = n[4].right = NULL;
-	n[6].data = 1;
-	n[6].left = n[6].right = NULL;
-	n[7].data = 1;
-	n[7].left = n[7].right = NULL;
-
-	n[2].data = 2;
-	n[2].left = &n[1];
-	n[2].right = &n[4];
-
-	n[5].data = 5;
-	n[5].left = &n[6];
-	n[5].right = &n[7];
-
-	n[3].data = 3;
-	n[3].left = &n[2];
-	n[3].right = &n[5];
-
-	printf("%d\n", checkBST(&n[3]));
+	printf("%d\n", checkBST(&Root));
 	
 	return 0;
 }
