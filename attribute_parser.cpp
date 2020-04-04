@@ -69,25 +69,25 @@ public:
 		while (current < line.size() - 2) {
 			previous = current + 1;
 			current = line.find(' ', previous);
-			cout << "prev=" << previous << "current=" << current << endl;
+			//cout << "prev=" << previous << "current=" << current << endl;
 			string aname = line.substr(previous, current - previous);
-			cout << "a-name: [" << aname << "]" << endl;
+			//cout << "a-name: [" << aname << "]" << endl;
 
 			previous = current + 1;
 			current = line.find(' ', previous);
-			cout << "prev=" << previous << "current=" << current << endl;
+			//cout << "prev=" << previous << "current=" << current << endl;
 			string tmp = line.substr(previous, current - previous);
-			cout << "equal: [" << tmp << "]" << endl;
+			//cout << "equal: [" << tmp << "]" << endl;
 
 			previous = current + 1;
 			current = line.find(' ', previous);
 			if (current == string::npos) {
-				cout << "found last" << endl;
+				//cout << "found last" << endl;
 				current = line.find('>', previous);
 			}
-			cout << "prev=" << previous << "current=" << current << endl;
+			//cout << "prev=" << previous << "current=" << current << endl;
 			string vname = line.substr(previous, current - previous);
-			cout << "vname: [" << vname << "]" << endl;
+			//cout << "vname: [" << vname << "]" << endl;
 
 			//attributes.insert(make_pair(aname, vname));
 			attributes[aname] = vname;
@@ -121,20 +121,21 @@ bool isopen(string line)
 
 void test_get_name(void)
 {
-	for (auto t: tag_text) {
+	for (auto line: tag_text) {
 		Tag tag;
-		tag.set_name(t);
+		tag.set_name(line);
 		cout << "[" << tag.get_name() << "]" << endl;
 	}
 }
 
 void test_set_attr(void)
 {
-	string line = "<tag1 v1 = \"123\" v2 = \"43.4\" v3 = \"hello\">";
-	Tag tag;
-	tag.set_name(line);
-	tag.set_attr(line);
-	tag.print();
+	for (auto line: tag_text) {
+		Tag tag;
+		tag.set_name(line);
+		tag.set_attr(line);
+		tag.print();
+	}
 }
 
 int main(void)
