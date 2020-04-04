@@ -14,6 +14,7 @@ private:
 
 public:
 	Tag(string n) :name(n) {}
+	Tag() {}
 
 	void add_child(Tag* subtag) {
 		child_tags.push_back(subtag);
@@ -29,7 +30,10 @@ public:
 	string get_name(void) { return name; }
 
 	void print(void) {
-		cout << "current-tag: " << name << endl;
+		cout << "current-tag: " << name << " : ";
+		for (auto at: attributes)
+			cout << "[" << at.first << "]" << "=" << "[" << at.second << "] ";
+		cout << endl;
 		for (auto t: child_tags)
 			cout << "    child-tag: name="<< t->name << endl;
 	}
@@ -52,20 +56,41 @@ public:
 
 	void set_attr(string line)
 	{
-		int len = line.size();
+		size_t len = line.size();
 		if (line[len - 1] == '>' and line[len - 2] != '"')
 			// no attributes
 			return;
 
 		size_t current, previous = 0;
+		current = line.find(' '); // skip tag name
 
-		current = line.find(' ');
-		previous = current + 1;
-		
-		while (current != string::npos) {
-			line.substr(previous, current - previous);
+		// The last character should be '>'
+		// -2 is for '>' and '\0'
+		while (current < line.size() - 2) {
 			previous = current + 1;
 			current = line.find(' ', previous);
+			cout << "prev=" << previous << "current=" << current << endl;
+			string aname = line.substr(previous, current - previous);
+			cout << "a-name: [" << aname << "]" << endl;
+
+			previous = current + 1;
+			current = line.find(' ', previous);
+			cout << "prev=" << previous << "current=" << current << endl;
+			string tmp = line.substr(previous, current - previous);
+			cout << "equal: [" << tmp << "]" << endl;
+
+			previous = current + 1;
+			current = line.find(' ', previous);
+			if (current == string::npos) {
+				cout << "found last" << endl;
+				current = line.find('>', previous);
+			}
+			cout << "prev=" << previous << "current=" << current << endl;
+			string vname = line.substr(previous, current - previous);
+			cout << "vname: [" << vname << "]" << endl;
+
+			//attributes.insert(make_pair(aname, vname));
+			attributes[aname] = vname;
 		}
 	}
 
@@ -96,14 +121,25 @@ bool isopen(string line)
 
 void test_get_name(void)
 {
-	for (auto t: tag_text)
-		cout << "[" << get_name(t) << "]" << endl;
+	for (auto t: tag_text) {
+		Tag tag;
+		tag.set_name(t);
+		cout << "[" << tag.get_name() << "]" << endl;
+	}
 }
 
+void test_set_attr(void)
+{
+	string line = "<tag1 v1 = \"123\" v2 = \"43.4\" v3 = \"hello\">";
+	Tag tag;
+	tag.set_name(line);
+	tag.set_attr(line);
+	tag.print();
+}
 
 int main(void)
 {
 	test_get_name();
-	
+	test_set_attr();
 	return 0;
 }
