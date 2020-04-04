@@ -33,6 +33,42 @@ public:
 		for (auto t: child_tags)
 			cout << "    child-tag: name="<< t->name << endl;
 	}
+
+	void set_name(string line)
+	{
+		int s, i;
+		if (line[0] == '<' and line[1] != '/')
+			s = i = 1;
+		else
+			s = i = 2;
+	
+		for (; i < line.size(); i++) {
+			if (line[i] == ' ' || line[i] == '>') {
+				break;
+			}
+		}
+		name = line.substr(s, i-s /* lenth of sub-string */);
+	}
+
+	void set_attr(string line)
+	{
+		int len = line.size();
+		if (line[len - 1] == '>' and line[len - 2] != '"')
+			// no attributes
+			return;
+
+		size_t current, previous = 0;
+
+		current = line.find(' ');
+		previous = current + 1;
+		
+		while (current != string::npos) {
+			line.substr(previous, current - previous);
+			previous = current + 1;
+			current = line.find(' ', previous);
+		}
+	}
+
 };
 
 string tag_text[] = {"<tag1 v1 = \"123\" v2 = \"43.4\" v3 = \"hello\">",
@@ -53,27 +89,21 @@ string tag_text[] = {"<tag1 v1 = \"123\" v2 = \"43.4\" v3 = \"hello\">",
 					 "</tag6>"};
 int num_tag = 16;
 
-
-string get_name(string line)
+bool isopen(string line)
 {
-	int s, i;
-	if (line[0] == '<' and line[1] == '/')
-		s = i = 2;
-	else
-		s = i = 1;
-	
-	for (; i < line.size(); i++) {
-		if (line[i] == ' ' || line[i] == '>') {
-			break;
-		}
-	}
-	return line.substr(s, i-s /* lenth of sub-string */);
+	return line[0] == '<' and line[1] != '/';
 }
 
-int main(void)
+void test_get_name(void)
 {
 	for (auto t: tag_text)
 		cout << "[" << get_name(t) << "]" << endl;
+}
+
+
+int main(void)
+{
+	test_get_name();
 	
 	return 0;
 }
