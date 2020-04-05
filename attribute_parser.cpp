@@ -6,6 +6,77 @@
 using namespace std;
 
 
+/*
+ * link: https://www.hackerrank.com/challenges/attribute-parser/problem
+ */
+
+
+/*
+Test input:
+20 19
+<tag1 v1 = "123" v2 = "43.4" v3 = "hello">
+</tag1>
+<tag2 v4 = "v2" name = "Tag2">
+<tag3 v1 = "Hello" v2 = "World!">
+</tag3>
+<tag4 v1 = "Hello" v2 = "Universe!">
+</tag4>
+</tag2>
+<tag5>
+<tag7 new_val = "New">
+</tag7>
+</tag5>
+<tag6>
+<tag8 intval = "34" floatval = "9.845">
+<ntag nv = "4$">
+<nvtag nv = "6$">
+</nvtag>
+</ntag>
+</tag8>
+</tag6>
+tag1~v1
+tag1~v2
+tag1~v3
+tag4~v2
+tag2.tag4~v1
+tag2.tag4~v2
+tag2.tag3~v2
+tag5.tag7~new_val
+tag5~new_val
+tag7~new_val
+tag6.tag8~intval
+tag6.tag8~floatval
+tag6.tag8~val
+tag8~intval
+tag6.tag8.ntag~nv
+tag6.tag8.ntag.nvtag~nv
+tag6.tag8.nvtag~nv
+randomtag~nv
+tag283.tag21.den~jef
+
+Corrent result:
+123
+43.4
+hello
+Not Found!
+Hello
+Universe!
+World!
+New
+Not Found!
+Not Found!
+34
+9.845
+Not Found!
+Not Found!
+4$
+6$
+Not Found!
+Not Found!
+Not Found!
+*/
+
+
 class Tag {
 private:
 	string name;
@@ -64,11 +135,10 @@ public:
 			return;
 
 		size_t current, previous = 0;
+		size_t last = line.find('>');
 		current = line.find(' '); // skip tag name
 
-		// The last character should be '>'
-		// -2 is for '>' and '\0'
-		while (current < line.size() - 2) {
+		while (current < last && current != string::npos) {
 			previous = current + 1;
 			current = line.find(' ', previous);
 			//cout << "prev=" << previous << "current=" << current << endl;
@@ -81,18 +151,17 @@ public:
 			string tmp = line.substr(previous, current - previous);
 			//cout << "equal: [" << tmp << "]" << endl;
 
-			previous = current + 1;
-			current = line.find(' ', previous);
-			if (current == string::npos) {
-				//cout << "found last" << endl;
-				current = line.find('>', previous);
-			}
+			previous = current + 2; // skip the first '"'
+			current = line.find('"', previous);
 			//cout << "prev=" << previous << "current=" << current << endl;
 			string vname = line.substr(previous, current - previous);
 			//cout << "vname: [" << vname << "]" << endl;
-
-			//attributes.insert(make_pair(aname, vname));
+		
 			attributes[aname] = vname;
+
+			current++;
+			if (line[current] == '>')
+				break;
 		}
 	}
 	
@@ -101,7 +170,7 @@ public:
 		if (attributes.find(attr_key) != attributes.end())
 			return attributes[attr_key];
 		else
-			return "No such attribute: " + attr_key;
+			return "Not Found!";
 	}
 };
 
@@ -110,8 +179,7 @@ bool isopen(string& line)
 	return line[0] == '<' and line[1] != '/';
 }
 
-#if 0
-void test_get_name(void)
+void test_get_name(vector<string> tag_text)
 {
 	for (auto line: tag_text) {
 		Tag tag;
@@ -120,7 +188,7 @@ void test_get_name(void)
 	}
 }
 
-void test_set_attr(void)
+void test_set_attr(vector<string> tag_text)
 {
 	for (auto line: tag_text) {
 		Tag tag;
@@ -129,20 +197,21 @@ void test_set_attr(void)
 		tag.print();
 	}
 }
-#endif
 
 int parse_tag(Tag* parent, vector<string> text, size_t maxline, size_t curline)
 {
 	while (curline < maxline) {
 		string name;
 
+		//cout << "parse: " << text[curline] << endl;
+
 		if (isopen(text[curline])) {
 			Tag* newtag = new Tag;
 			newtag->set_name(text[curline]);
 			newtag->set_attr(text[curline]);
-			//cout << "Create new tag:";
-			//newtag->print();
-			//cout << endl;
+			// cout << "Create new tag:";
+			// newtag->print();
+			// cout << endl;
 			parent->add_child(newtag);
 			curline = parse_tag(newtag, text, maxline, curline + 1);
 		} else {
@@ -153,50 +222,40 @@ int parse_tag(Tag* parent, vector<string> text, size_t maxline, size_t curline)
 	return curline + 1;
 }
 
-string tag_text[] = {"<tag1 v1 = \"123\" v2 = \"43.4\" v3 = \"hello\">",
-					 "</tag1>",
-					 "<tag2 v4 = \"v2\" name = \"Tag2\">",
-					 "<tag3 v1 = \"Hello\" v2 = \"World!\">",
-					 "</tag3>",
-					 "<tag4 v1 = \"Hello\" v2 = \"Universe!\">",
-					 "</tag4>",
-					 "</tag2>",
-					 "<tag5>",
-					 "<tag7 new_val = \"New\">",
-					 "</tag7>",
-					 "</tag5>",
-					 "<tag6>",
-					 "<tag8 intval = \"34\" floatval = \"9.845\">",
-					 "</tag8>",
-					 "</tag6>"};
-int num_tag = 16;
-string query_text[] = {"tag1~v1",
-					   "tag1~v2",
-					   "tag1~v3",
-					   "tag4~v2",
-					   "tag2.tag4~v1",
-					   "tag2.tag4~v2",
-					   "tag2.tag3~v2",
-					   "tag5.tag7~new_val",
-					   "tag5~new_val",
-					   "tag7~new_val",
-					   "tag6.tag8~intval",
-					   "tag6.tag8~floatval",
-					   "tag6.tag8~val",
-					   "tag8~intval"};
-
 int main(void)
 {
+	int num_tag, num_query;
+	string tmp;
 	vector<string> tags;
-	for (auto l: tag_text)
-		tags.push_back(l);
+	vector<string> queries;
+
+	cin >> num_tag >> num_query;
+	getline(cin, tmp); // remove newline
+
+	for (int i = 0; i < num_tag; i++) {
+		getline(cin, tmp);
+		tags.push_back(tmp);
+	}
+	for (int i = 0; i < num_query; i++) {
+		getline(cin, tmp);
+		queries.push_back(tmp);
+	}
+
+	// if (tags.size() == num_tag && queries.size() == num_query) {
+	// 	cout << "input ok" << endl;
+	// } else {
+	// 	cout << "input error\n";
+	// 	return 1;
+	// }
 	
 	Tag toptag("top");
 
 	parse_tag(&toptag, tags, num_tag, 0);
-	//toptag.print();
 
-	for (auto line: query_text) {
+	// cout << "parse finish\n";
+	// toptag.print();
+
+	for (auto line: queries) {
 		size_t current, previous = 0;
 		size_t last = line.find('~');
 		string tname;
@@ -212,14 +271,14 @@ int main(void)
 			if (!foundtag) break;
 		}
 		if (!foundtag) {
-			cout << "No such tag: " << tname << endl;
+			cout << "Not Found!\n";
 			continue;
 		}
 		tname = line.substr(previous, last - previous);
 		//cout << "2tag-name: [" << tname << "]" << endl;
 		foundtag = foundtag->find_tag(tname);
 		if (!foundtag) {
-			cout << "No such tag: " << tname << endl;
+			cout << "Not Found!\n";
 			continue;
 		}
 
